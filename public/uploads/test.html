@@ -1,0 +1,33 @@
+<form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" id="formFile" name="file">
+    <button type="button" onclick="uploadFile()">Upload</button>
+  </form>
+  
+  <div id="message"></div>
+  
+  <script>
+    async function uploadFile() {
+  const form = document.getElementById('uploadForm');
+  const formData = new FormData(form);
+
+  // Log the FormData content for debugging
+  for (let [key, value] of formData.entries()) {
+    console.log(key, value);
+  }
+
+  try {
+    const response = await fetch('/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+    document.getElementById('message').textContent = result.message;
+    console.log('File uploaded:', result.file);
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('message').textContent = 'Error uploading file';
+  }
+}
+  </script>
+  

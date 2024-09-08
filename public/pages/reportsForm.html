@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>form</title>
+    <link rel="stylesheet" href="/pages/table.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body class="bg-body-secondary">
+   
+    <h2 class="d-flex justify-content-center my-4">Fill in the report details</h2>
+
+    <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/public/pages/Login">Navbar</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+              <li class="nav-item mx-5 fadeIn">
+                <a class="nav-link active " aria-current="page" href="/">Cases</a>
+              </li>
+              <li class="nav-item mx-5 fadeIn">
+                <a class="nav-link " href="/Malware">Malware</a>
+              </li>
+              <li class="nav-item mx-5 fadeIn">
+                <a class="nav-link " href="/Dashboard">Dashboard</a>
+              </li>
+              <li class="nav-item mx-5">
+                <button onclick="changeMode()" style="margin-top: 0.4em;" class="bg-white" type="button"><img id="img" src="/img/brightness (1).png" alt="img"></button>
+              </li>
+            </ul>
+            <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container">
+        
+            <form id="reportForm" action="reportsForm" method="POST">
+                <div>
+                    <div class="mb-3">
+                  <label for="caseid" class="form-label">Case ID</label>
+                  <input name="caseId" type="text" id="caseid" class="form-control-sm" disabled>
+                  <div class="d-inline text-secondary">The Case ID is auto filled</div>
+                </div>
+                <div class="mb-4 pt-4 border-top border-black row justify-content-start">
+                      <div class="col">
+                        <div id="toolsdiv">
+                          <label for="title3" class="form-label">Tools Used</label>
+                        <div class="input-group">
+                         
+                        <input type="text" name="toolsUsed" id="title3" class="form-control" autocomplete="on" list="names">
+                        <button class="btn btn-outline-primary" type="button" id="button-tools">Add</button>
+                        <button class="btn btn-outline-danger" type="button" id="button-delete-tools">Delete</button>
+                        <datalist id="names">
+                          <option value="Alice">
+                          <option value="Bob">
+                          <option value="Charlie">
+                      </datalist>
+                        </div>
+                        </div>
+                        
+                        <div id="alertdiv">
+                            <label for="title2" class="form-label mt-2">Alert/Policy Rule</label>
+                        <div class="input-group">
+                          <input name="alertPolicy" type="text" id="title2" class="form-control" autocomplete="on" list="names">
+                          <button class="btn btn-outline-primary" type="button" id="button-alert">Add</button>
+                          <button class="btn btn-outline-danger" type="button" id="button-delete-alert">Delete</button>
+                        </div>
+                      
+                        </div>
+                        
+                       </div>
+                    
+
+                      <div class="col">
+                     <label for="intel" class="form-label">Source Of Intel<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
+                     <input name="sourceIntel" type="text" id="intel" class="form-control">
+                     </div>
+                     <div class="col">
+                      <label for="reportNum" class="form-label">Report Number<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
+                      <input type="number" name="reportNum" disabled type="text" id="reportNum" class="form-control">
+                      <label for="letter" class="form-label">Letter Number<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
+                      <input type="number" name="letterNum" disabled type="text" id="letter" class="form-control">
+                      </div>
+                </div>
+                <div class="row mb-3 pt-3 border-top border-black pt-2">
+                  <div class="col">
+                    <label for="analysis" class="form-label">Analysis</label>
+                     <textarea name="analysis" placeholder="Enter description here" class="form-control" id="analysis"></textarea>
+                 </div>
+                </div>
+                <div class="row mb-4 border-top border-black pt-2">
+
+                  <div class="col-6" id="ipdestDiv">
+
+                    <label for="ipdest" class="form-label mt-1">Destination IP</label>
+
+                    <div class="input-group">
+                    <input type="number" name="destinationIPs" type="text" id="ipdest" class="form-control">
+                    <button class="btn btn-outline-primary" type="button" id="button-addon3">Add</button>
+                    <button class="btn btn-outline-danger" type="button" id="button-delete-dest">Delete</button>
+                    </div>
+                </div>
+
+                <div class="col-6" id="ipsrcDiv">
+
+                  <label for="ipsrc1" class="form-label mt-1">Source IP</label>
+
+                  <div class="input-group">
+                  <input type="number" name="sourceIPs" type="text" id="ipsrc1" class="form-control">
+                  <button class="btn btn-outline-primary" type="button" id="button-addon4">Add</button>
+                  <button class="btn btn-outline-danger" type="button" id="button-delete-src">Delete</button>
+                  </div>
+                  </div>
+
+                </div>
+                <div class="row pt-3 mb-4">
+
+                  <div class="col-6" id="ioc">
+
+                    <label for="iocDropDown" class="form-label">IOC's</label>
+                    <select name="iocType" class="form-select form-select-sm mb-2 iocbox" style="width: 10em;" id="iocDropDown" aria-label="Select example">
+                      <option disabled selected>Type of IOC</option>
+                      <option value="Hash">Hash</option>
+                      <option value="IP">IP</option>
+                    </select>
+                    <div class="input-group">
+                    <input name="iocs" type="text" id="iocText" class="form-control ioctextbox">
+                    <button class="btn btn-outline-primary" type="button" id="button-addon2">Add</button>
+                    <button class="btn btn-outline-danger" type="button" id="button-delete-ioc">Delete</button>
+                    </div>
+                    
+                  </div>
+                  <div class="col-6">
+                    <label for="recom" class="form-label">Recommendations</label>
+                     <textarea name="recommendations" placeholder="Enter description here" class="form-control" id="recom"></textarea>
+                  </div>
+                </div>      
+                
+                <div class="row mb-3 pt-3 border-top border-black pt-2">
+
+                 
+                    <div class="col" id="ttpdiv">
+                      <label for="ttp" class="form-label">TTP's</label>
+                      <div class="input-group">
+                        <input name="ttps" type="text" id="ttp" class="form-control" autocomplete="on" list="names">
+                        <button class="btn btn-outline-primary" type="button" id="button-ttp">Add</button>
+                        <button class="btn btn-outline-danger" type="button" id="button-delete-ttp">Delete</button>
+                      </div>
+                      
+                    </div>
+                    
+                    
+                    </div>
+                  <div class="row pt-4 mb-4 border-top border-black pt-2">
+                    <div class="col-2">
+                      <label for="dropdownSelect" class="form-label">Choose an option:</label>
+                    <select name="fileType" class="form-select" id="dropdownSelect" aria-label="Select example">
+                      <option value="" disabled selected>Type of file</option>
+                      <option value="Report">Report</option>
+                      <option value="Screenshot">Screenshot</option>
+                    </select>
+                  </div>
+                  <div class="col">
+                    <label for="formFile" class="form-label">Upload a file</label>
+                    <input name="file" class="form-control" type="file" id="formFile">
+                </div>
+                </div>
+                    
+
+                <div class=" d-flex justify-content-center">
+                     <button type="submit" id="submitbtn" class="btn btn-primary my-2">Submit</button>
+                </div>
+               
+                
+            </form>
+        
+      </div>
+      <script>
+
+
+// Set the min attribute of the date input to today's date
+
+
+
+    // Fetch data based on a case ID from the URL
+document.addEventListener('DOMContentLoaded', function() {
+  // Extract caseId from the URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const caseId = urlParams.get('id'); // Get caseId from URL
+  const intel = document.getElementById('intel')
+
+  const form = document.getElementById("reportForm");
+
+  form.setAttribute("action", "/reportsForm/" + caseId);
+  
+
+  if (!caseId) {
+    console.error('No case ID found in URL');
+    return;
+  }
+
+  // Fetch data from the server using the caseId
+  fetch(`/api/records/${caseId}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        // Populate form fields with fetched data
+        document.getElementById('caseid').value = data.caseId;
+    
+      } else {
+        console.error('Record not found');
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching record:', error);
+    });
+});
+
+      </script>
+    <script src="/pages/ioc.js"></script>
+   <script src="/pages/main.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

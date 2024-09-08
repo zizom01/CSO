@@ -1,0 +1,10 @@
+
+POST http://localhost:8085/form
+Content-Type: "application/json"
+
+caseId=12345
+title=Test Case
+description=This is a test description.
+analysis=This is a test analysis.
+recommendations=These are test recommendations.
+fileType=1

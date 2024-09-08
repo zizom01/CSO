@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Form</title>
+    <link rel="stylesheet" href="/pages/table.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body class="bg-body-secondary">
+   
+    <h2 class="d-flex justify-content-center my-4">Edit Report Details</h2>
+
+    <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/public/pages/Login">Navbar</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+              <li class="nav-item mx-5 fadeIn">
+                <a class="nav-link active " aria-current="page" href="/">Cases</a>
+              </li>
+              <li class="nav-item mx-5 fadeIn">
+                <a class="nav-link " href="/Malware">Malware</a>
+              </li>
+              <li class="nav-item mx-5 fadeIn">
+                <a class="nav-link " href="/Dashboard">Dashboard</a>
+              </li>
+              <li class="nav-item mx-5">
+                <button onclick="changeMode()" style="margin-top: 0.4em;" class="bg-white" type="button"><img id="img" src="/img/brightness (1).png" alt="img"></button>
+              </li>
+            </ul>
+            <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container">
+        <form id="reportForm" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="caseid" class="form-label">Case ID</label>
+              <input name="caseId" type="text" id="caseid" class="form-control-sm" disabled>
+              <div class="d-inline text-secondary">The Case ID is auto filled</div>
+            </div>
+            <div class="mb-3 pt-3 border-top border-black pt-2 row">
+                <div class="col-4">
+                 <label for="title" class="form-label">Case Title</label>
+                 <input name="title" type="text" id="title" class="form-control">
+                </div>
+                
+                <div class="col">
+                     <label for="description" class="form-label">Case Description</label>
+                      <textarea name="description" placeholder="Enter description here" class="form-control" id="description"></textarea>
+                </div>
+            </div>
+            <div class="mb-4 pt-4 border-top border-black row justify-content-start">
+                  <div class="col">
+                    <div id="toolsdiv">
+                      <label for="title3" class="form-label">Tools Used</label>
+                    <div class="input-group">
+                     
+                    <input type="text" name="toolUsed[]" id="toolUsed" class="form-control" autocomplete="on" list="names">
+                    <button class="btn btn-outline-primary" type="button" id="button-tools">Add</button>
+                    <button class="btn btn-outline-danger" type="button" id="button-delete-tools">Delete</button>
+                    <datalist id="names">
+                      <option value="Alice">
+                      <option value="Bob">
+                      <option value="Charlie">
+                  </datalist>
+                    </div>
+                    </div>
+                    
+                    <div id="alertdiv">
+                        <label for="title2" class="form-label mt-2">Alert/Policy Rule</label>
+                    <div class="input-group">
+                      <input name="alertPolicy[]" type="text" id="Alerts" class="form-control" autocomplete="on" list="names">
+                      <button class="btn btn-outline-primary" type="button" id="button-alert">Add</button>
+                          <button class="btn btn-outline-danger" type="button" id="button-delete-alert">Delete</button>
+                    </div>
+                  
+                    </div>
+                    
+                   </div>
+                 
+
+                  <div class="col">
+                 <label for="intel" class="form-label">Source Of Intel<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
+                 <input name="sourceIntel" type="text" id="intel" class="form-control">
+                 </div>
+                 <div class="col">
+                  <label for="reportNum" class="form-label">Report Number<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
+                  <input type="number" name="reportNum" disabled type="text" id="reportNum" class="form-control">
+                  <label for="letter" class="form-label">Letter Number<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
+                  <input type="number" name="letterNum" disabled type="text" id="letter" class="form-control">
+                  </div>
+            </div>
+            <div class="row mb-3 pt-3 border-top border-black pt-2">
+              <div class="col">
+                <label for="analysis" class="form-label">Analysis</label>
+                 <textarea name="analysis" required placeholder="Enter description here" class="form-control" id="analysis"></textarea>
+             </div>
+            </div>
+            <div class="row mb-4 border-top border-black pt-2">
+
+              <div class="col-6" id="ipdestDiv">
+
+                <label for="ipdest" class="form-label mt-1">Destination IP</label>
+
+                <div class="input-group">
+                <input type="number" name="destinationIPs[]" type="text" required id="ipdest" class="form-control">
+                <button class="btn btn-outline-primary" type="button" id="button-addon3">Add</button>
+                <button class="btn btn-outline-danger" type="button" id="button-delete-dest">Delete</button>
+                </div>
+            </div>
+
+            <div class="col-6" id="ipsrcDiv">
+
+              <label for="ipsrc1" class="form-label mt-1">Source IP</label>
+
+              <div class="input-group">
+              <input type="number" name="sourceIPs[]" type="text" required id="ipsrc1" class="form-control">
+              <button class="btn btn-outline-primary" type="button" id="button-addon4">Add</button>
+              <button class="btn btn-outline-danger" type="button" id="button-delete-src">Delete</button>
+              </div>
+              </div>
+
+            </div>
+            <div class="row pt-3 mb-4">
+
+              <div class="col-6" id="ioc">
+
+                <label for="iocDropDown" class="form-label">IOC's</label>
+                <select name="iocType[]" required class="form-select form-select-sm mb-2 iocbox" style="width: 10em;" id="iocDropDown" aria-label="Select example">
+                  <option disabled selected>Type of IOC</option>
+                  <option value="Hash">Hash</option>
+                  <option value="IP">IP</option>
+                </select>
+                <div class="input-group">
+                <input name="ioc[]" type="text" required id="iocText" class="form-control ioctextbox">
+                <button class="btn btn-outline-primary" type="button" id="button-addon2">Add</button>
+                <button class="btn btn-outline-danger" type="button" id="button-delete-ioc">Delete</button>
+                </div>
+                
+              </div>
+              <div class="col-6">
+                <label for="recom" class="form-label">Recommendations</label>
+                 <textarea name="recommendations" required placeholder="Enter description here" class="form-control" id="recom"></textarea>
+              </div>
+            </div>      
+            
+            <div class="row mb-3 pt-3 border-top border-black pt-2">
+
+             
+                <div class="col" id="ttpdiv">
+                  <label for="ttp" class="form-label">TTP's</label>
+                  <div class="input-group">
+                    <input name="ttps[]" type="text" id="ttp" class="form-control" autocomplete="on" list="names">
+                    <button class="btn btn-outline-primary" type="button" id="button-ttp">Add</button>
+                    <button class="btn btn-outline-danger" type="button" id="button-delete-ttp">Delete</button>
+                  </div>
+                  
+                </div>
+                
+                
+                </div>
+              <div class="row pt-4 mb-4 border-top border-black pt-2">
+                <div class="col-2">
+                  <label for="dropdownSelect" class="form-label">Choose an option:</label>
+                <select  name="fileType" class="form-select" id="dropdownSelect" aria-label="Select example">
+                  <option value="" disabled selected>Type of file</option>
+                  <option value="Report">Report</option>
+                  <option value="Screenshot">Screenshot</option>
+                </select>
+                
+              </div>
+
+              <div class="col">
+                <label for="formFile" class="form-label">Upload a file</label>
+                <div class="col">
+                <input name="file" multiple class="form-control" type="file" id="formFile">
+            </div>
+              </div>
+              
+            </div>
+            <div class="row pt-4">
+              <div id="message"></div>
+              <div id="fileDisplay">
+                <!-- File links will be inserted here -->
+              </div>
+            </div>
+                
+
+         <div class=" d-flex justify-content-center mt-3">
+          <button type="submit" class="btn btn-primary my-2">Submit</button>
+     </div>
+        </form>
+          
+
+       
+
+    </div>
+
+    <script>
+
+
+       const urlParams = new URLSearchParams(window.location.search);
+const caseId = urlParams.get('id'); // Get caseId from URL
+
+
+
+    // Fetch data based on a case ID from the URL
+document.addEventListener('DOMContentLoaded', function() {
+  // Extract caseId from the URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const caseId = urlParams.get('id'); // Get caseId from URL
+  const intel = document.getElementById('intel')
+  console.log("Case ID:", caseId);
+
+
+
+  if (!caseId) {
+    console.error('No case ID found in URL');
+    return;
+  }
+
+  // Fetch data from the server using the caseId
+  fetch(`/nest/api/records/${caseId}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data) {
+        // Populate form fields with fetched data
+        document.getElementById('caseid').value = data.caseId;
+        document.getElementById('title').value = data.title;
+        document.getElementById('Alerts').value = data.alertPolicy[0];
+        document.getElementById('toolUsed').value = data.toolsUsed[0];
+        document.getElementById('description').value = data.description;
+        document.getElementById('analysis').value = data.analysis;
+        document.getElementById('intel').value = data.sourceIntel;
+        document.getElementById('reportNum').value = data.reportNum;
+        document.getElementById('letter').value = data.letterNum;
+        document.getElementById('iocDropDown').value = data.iocType[0];
+        document.getElementById('iocText').value = data.iocs[0];
+        document.getElementById('recom').value = data.recommendations;
+        document.getElementById('ipdest').value = data.destinationIPs[0];
+        document.getElementById('ipsrc1').value = data.sourceIPs[0];
+        document.getElementById('ttp').value = data.ttps[0];
+
+        const fileDisplay = document.getElementById('fileDisplay');
+        if (data.files && data.files.length > 0) {
+            data.files.forEach(filePath => {
+                const link = document.createElement('a');
+                link.href = filePath;
+                link.target = '_blank';
+                link.innerText = `Download ${filePath.split('/').pop()}`;
+                fileDisplay.appendChild(link);
+                fileDisplay.appendChild(document.createElement('br'));
+            });
+        }
+
+        if (data.sourceIntel !== ""){
+        reportNum.disabled = false;
+        letterNum.disabled = false;
+        }
+        for (let i = 0; i < data.iocs.length; i++) {
+    if (i > 0) { // Check to skip the first element only if more elements are expected
+        addText(i, data.iocs[i]);
+        console.log(data.iocs[i])
+    }
+    const dropdown = document.getElementById(`type${i}`);
+    if (dropdown) {
+        dropdown.value = data.iocType[i]; // Set the value of the dropdown
+    }
+}
+    for (let i = 0; i < data.destinationIPs.length; i++) {
+  // Decrement the index by 1
+     const index = i - 1;
+     if (index >= 0) { // Ensure the index is valid
+       addTextDest(i, data.destinationIPs[i]);
+         }
+    }
+    for (let i = 0; i < data.sourceIPs.length; i++) {
+  // Decrement the index by 1
+     const index = i - 1;
+     if (index >= 0) { // Ensure the index is valid
+       addTextSrc(i, data.sourceIPs[i]);
+         }
+    }
+    for (let i = 0; i < data.ttps.length; i++) {
+  // Decrement the index by 1
+     const index = i - 1;
+     if (index >= 0) { // Ensure the index is valid
+       addTextTTP(i, data.ttps[i]);
+         }
+    }
+    for (let i = 0; i < data.alertPolicy.length; i++) {
+  // Decrement the index by 1
+     const index = i - 1;
+     if (index >= 0) { // Ensure the index is valid
+       addTextAlert(i, data.alertPolicy[i]);
+         }
+    }
+    for (let i = 0; i < data.toolsUsed.length; i++) {
+  // Decrement the index by 1
+     const index = i - 1;
+     if (index >= 0) { // Ensure the index is valid
+       addTextTools(i, data.toolsUsed[i]);
+         }
+    }
+       
+
+        // Handle dynamic elements like tools and alerts
+        // Clear existing tools and alert
+
+    
+      } else {
+        console.error('Record not found');
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching record:', error);
+    });
+});
+
+  // Handle form submission
+  document.getElementById('reportForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Prevent form from submitting the default way
+    const urlParams = new URLSearchParams(window.location.search);
+    const caseId = urlParams.get('id'); // Get caseId from URL
+
+    // Helper function to get array values
+    function getArrayValues(name) {
+        return Array.from(document.querySelectorAll(`input[name="${name}"], select[name="${name}"]`))
+            .map(element => element.value)
+            .filter(value => value !== ''); // Filter out empty values if needed
+    }
+
+    const formData = new FormData();
+    formData.append('caseId', document.getElementById('caseid').value);
+    formData.append('title', document.getElementById('title').value);
+    formData.append('description', document.getElementById('description').value);
+    formData.append('alertPolicy', JSON.stringify(getArrayValues('alertPolicy[]')));
+    formData.append('toolsUsed', JSON.stringify(getArrayValues('toolUsed[]')));
+    formData.append('analysis', document.getElementById('analysis').value);
+    formData.append('sourceIntel', document.getElementById('intel').value);
+    formData.append('reportNum', document.getElementById('reportNum').value);
+    formData.append('letterNum', document.getElementById('letter').value);
+    formData.append('iocType', JSON.stringify(getArrayValues('iocType[]')));
+    formData.append('ioc', JSON.stringify(getArrayValues('ioc[]')));
+    formData.append('recommendations', document.getElementById('recom').value);
+    formData.append('destinationIPs', JSON.stringify(getArrayValues('destinationIPs[]').map(Number)));
+    formData.append('sourceIPs', JSON.stringify(getArrayValues('sourceIPs[]').map(Number)));
+    formData.append('ttps', JSON.stringify(getArrayValues('ttps[]')));
+
+    // Append the file if present
+    const files = document.getElementById('formFile').files; // Get the files from the input
+
+for (let i = 0; i < files.length; i++) {
+    formData.append('file', files[i]); // Append each file to the FormData object
+}
+
+    try {
+        const response = await fetch(`/nest/api/records/${caseId}`, {
+            method: 'PUT',
+            body: formData, // Use FormData directly
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update record');
+        }
+
+        window.location.href = '/success_edit'; // Redirect to a success page
+    } catch (error) {
+        console.error('Error updating record:', error);
+    }
+});
+
+
+
+
+// // Function to clear dynamic fields
+// function clearDynamicFields(type) {
+//   const container = document.getElementById(`${type}Container`);
+//   if (container) {
+//     container.innerHTML = '';
+//   }
+// }
+
+// // Function to add dynamic fields
+// function addDynamicField(type, value) {
+//   const container = document.getElementById(`${type}Container`);
+//   if (container) {
+//     const input = document.createElement('input');
+//     input.type = 'text';
+//     input.value = value;
+//     input.className = 'form-control';
+//     container.appendChild(input);
+//   }
+// }
+
+
+    </script>
+
+    <script src="/pages/ioc.js"></script>
+    <script src="/pages/main.js"></script>
+    <script src="/pages/form_submit.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
