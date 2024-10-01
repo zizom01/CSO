@@ -9,11 +9,13 @@
 </head>
 <body class="bg-body-secondary">
    
-    <h2 class="d-flex justify-content-center my-4">Edit Report Details</h2>
+    <h2 class="d-flex justify-content-center my-4">Edit Case Details</h2>
 
     <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="/public/pages/Login">Navbar</a>
+          <a class="" style="margin: 0;" href="/">
+            <img src="/img/file.png" alt="Logo" style="width:60px; height: 50px;">
+        </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -28,9 +30,7 @@
               <li class="nav-item mx-5 fadeIn">
                 <a class="nav-link " href="/Dashboard">Dashboard</a>
               </li>
-              <li class="nav-item mx-5">
-                <button onclick="changeMode()" style="margin-top: 0.4em;" class="bg-white" type="button"><img id="img" src="/img/brightness (1).png" alt="img"></button>
-              </li>
+              
             </ul>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -55,103 +55,9 @@
                 
                 <div class="col">
                      <label for="description" class="form-label">Case Description</label>
-                      <textarea name="description" placeholder="Enter description here" class="form-control" id="description"></textarea>
+                      <textarea name="description" class="form-control" id="description"></textarea>
                 </div>
             </div>
-            <div class="mb-4 pt-4 border-top border-black row justify-content-start">
-                  <div class="col">
-                    <div id="toolsdiv">
-                      <label for="title3" class="form-label">Tools Used</label>
-                    <div class="input-group">
-                     
-                    <input type="text" name="toolUsed[]" id="toolUsed" class="form-control" autocomplete="on" list="names">
-                    <button class="btn btn-outline-primary" type="button" id="button-tools">Add</button>
-                    <button class="btn btn-outline-danger" type="button" id="button-delete-tools">Delete</button>
-                    <datalist id="names">
-                      <option value="Alice">
-                      <option value="Bob">
-                      <option value="Charlie">
-                  </datalist>
-                    </div>
-                    </div>
-                    
-                    <div id="alertdiv">
-                        <label for="title2" class="form-label mt-2">Alert/Policy Rule</label>
-                    <div class="input-group">
-                      <input name="alertPolicy[]" type="text" id="Alerts" class="form-control" autocomplete="on" list="names">
-                      <button class="btn btn-outline-primary" type="button" id="button-alert">Add</button>
-                      <button class="btn btn-outline-danger" type="button" id="button-delete-alert">Delete</button>
-                    </div>
-                  
-                    </div>
-                    
-                   </div>
-                 
-
-                  <div class="col">
-                 <label for="intel" class="form-label">Source Of Intel<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
-                 <input name="sourceIntel" type="text" id="intel" class="form-control">
-                 </div>
-                 <div class="col">
-                  <label for="reportNum" class="form-label">Report Number<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
-                  <input type="number" name="reportNum" disabled type="text" id="reportNum" class="form-control">
-                  <label for="letter" class="form-label">Letter Number<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
-                  <input type="number" name="letterNum" disabled type="text" id="letter" class="form-control">
-                  </div>
-            </div>
-            <div class="row mb-3 pt-3 border-top border-black pt-2">
-              <div class="col">
-                <label for="analysis" class="form-label">Analysis</label>
-                 <textarea name="analysis" required placeholder="Enter description here" class="form-control" id="analysis"></textarea>
-             </div>
-            </div>
-            <div class="row mb-4 border-top border-black pt-2">
-
-              <div class="col-6" id="ipdestDiv">
-
-                <label for="ipdest" class="form-label mt-1">Destination IP</label>
-
-                <div class="input-group">
-                <input type="number" name="destinationIPs[]" type="text" required id="ipdest" class="form-control">
-                <button class="btn btn-outline-primary" type="button" id="button-addon3">Add</button>
-                <button class="btn btn-outline-danger" type="button" id="button-delete-dest">Delete</button>
-                </div>
-            </div>
-
-            <div class="col-6" id="ipsrcDiv">
-
-              <label for="ipsrc1" class="form-label mt-1">Source IP</label>
-
-              <div class="input-group">
-              <input type="number" name="sourceIPs[]" type="text" required id="ipsrc1" class="form-control">
-              <button class="btn btn-outline-primary" type="button" id="button-addon4">Add</button>
-              <button class="btn btn-outline-danger" type="button" id="button-delete-src">Delete</button>
-              </div>
-              </div>
-
-            </div>
-            <div class="row pt-3 mb-4">
-
-              <div class="col-6" id="ioc">
-
-                <label for="iocDropDown" class="form-label">IOC's</label>
-                <select name="iocType[]" required class="form-select form-select-sm mb-2 iocbox" style="width: 10em;" id="iocDropDown" aria-label="Select example">
-                  <option disabled selected>Type of IOC</option>
-                  <option value="Hash">Hash</option>
-                  <option value="IP">IP</option>
-                </select>
-                <div class="input-group">
-                <input name="ioc[]" type="text" required id="iocText" class="form-control ioctextbox">
-                <button class="btn btn-outline-primary" type="button" id="button-addon2">Add</button>
-                <button class="btn btn-outline-danger" type="button" id="button-delete-ioc">Delete</button>
-                </div>
-                
-              </div>
-              <div class="col-6">
-                <label for="recom" class="form-label">Recommendations</label>
-                 <textarea name="recommendations" required placeholder="Enter description here" class="form-control" id="recom"></textarea>
-              </div>
-            </div>      
             
             <div class="row mb-3 pt-3 border-top border-black pt-2">
 
@@ -169,52 +75,21 @@
                 </div>
                 </div>
                 <div class="col" id="ttpdiv">
-                  <label for="ttp" class="form-label">TTP's</label>
-                  <div class="input-group">
-                    <input name="ttps[]" type="text" id="ttp" class="form-control" autocomplete="on" list="names">
-                    <button class="btn btn-outline-primary" type="button" id="button-ttp">Add</button>
-                    <button class="btn btn-outline-danger" type="button" id="button-delete-ttp">Delete</button>
+                <div class="col-3"></div>
+                    <label for="follow" class="form-label">Followup Date</label>
+                     <input name="follow" required type="date" id="follow" class="form-control">
                   </div>
                   
                 </div>
                 
                 
                 </div>
-              <div class="row pt-4 mb-4 border-top border-black pt-2">
-                <div class="col-2">
-                  <label for="dropdownSelect" class="form-label">Choose an option:</label>
-                <select  name="fileType" class="form-select" id="dropdownSelect" aria-label="Select example">
-                  <option value="" disabled selected>Type of file</option>
-                  <option value="Report">Report</option>
-                  <option value="Screenshot">Screenshot</option>
-                </select>
                 
-              </div>
+                    
 
-              <div class="col-3">
-                <label for="follow" class="form-label">Followup Date</label>
-                 <input name="follow" required type="date" id="follow" class="form-control">
-              </div>
-
-              <div class="col">
-                <label for="formFile" class="form-label">Upload a file</label>
-                <div class="col">
-                <input name="file" multiple class="form-control" type="file" id="formFile">
-            </div>
-              </div>
-              
-            </div>
-            <div class="row pt-4">
-              <div id="message"></div>
-              <div id="fileDisplay">
-                <!-- File links will be inserted here -->
-              </div>
-            </div>
-                
-
-         <div class=" d-flex justify-content-center mt-3">
-          <button type="submit" class="btn btn-primary my-2">Submit</button>
-     </div>
+                <div class=" d-flex justify-content-center mb-3 pt-3 border-top border-black">
+                     <button type="submit" class="btn btn-primary my-2">Submit</button>
+                </div>
         </form>
           
 
@@ -241,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const urlParams = new URLSearchParams(window.location.search);
   const caseId = urlParams.get('id'); // Get caseId from URL
   const intel = document.getElementById('intel')
-
+  
 
 
   if (!caseId) {
@@ -257,32 +132,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Populate form fields with fetched data
         document.getElementById('caseid').value = data.caseId;
         document.getElementById('title').value = data.title;
-        document.getElementById('Alerts').value = data.alertPolicy[0];
-        document.getElementById('toolUsed').value = data.toolsUsed[0];
         document.getElementById('description').value = data.description;
-        document.getElementById('analysis').value = data.analysis;
-        document.getElementById('intel').value = data.sourceIntel;
-        document.getElementById('reportNum').value = data.reportNum;
-        document.getElementById('letter').value = data.letterNum;
-        document.getElementById('iocDropDown').value = data.iocType[0];
-        document.getElementById('iocText').value = data.iocs[0];
-        document.getElementById('recom').value = data.recommendations;
-        document.getElementById('ipdest').value = data.destinationIPs[0];
-        document.getElementById('ipsrc1').value = data.sourceIPs[0];
-        document.getElementById('ttp').value = data.ttps[0];
-        document.getElementById('follow').value = data.follow;
+        
 
-        const fileDisplay = document.getElementById('fileDisplay');
-        if (data.files && data.files.length > 0) {
-            data.files.forEach(filePath => {
-                const link = document.createElement('a');
-                link.href = filePath;
-                link.target = '_blank';
-                link.innerText = `Download ${filePath.split('/').pop()}`;
-                fileDisplay.appendChild(link);
-                fileDisplay.appendChild(document.createElement('br'));
-            });
+        const followDate = new Date(data.follow);
+        const formattedDate = followDate.toISOString().split('T')[0];
+        
+        // Check if the fetched date is after today
+        if (formattedDate >= today) {
+          document.getElementById('follow').value = formattedDate;
         }
+        
 
         if (data.sourceIntel !== ""){
         reportNum.disabled = false;
@@ -366,27 +226,8 @@ document.addEventListener('DOMContentLoaded', function() {
     formData.append('caseId', document.getElementById('caseid').value);
     formData.append('title', document.getElementById('title').value);
     formData.append('description', document.getElementById('description').value);
-    formData.append('alertPolicy', JSON.stringify(getArrayValues('alertPolicy[]')));
-    formData.append('toolsUsed', JSON.stringify(getArrayValues('toolUsed[]')));
-    formData.append('analysis', document.getElementById('analysis').value);
-    formData.append('sourceIntel', document.getElementById('intel').value);
-    formData.append('reportNum', document.getElementById('reportNum').value);
-    formData.append('letterNum', document.getElementById('letter').value);
-    formData.append('iocType', JSON.stringify(getArrayValues('iocType[]')));
-    formData.append('ioc', JSON.stringify(getArrayValues('ioc[]')));
-    formData.append('recommendations', document.getElementById('recom').value);
-    formData.append('destinationIPs', JSON.stringify(getArrayValues('destinationIPs[]').map(Number)));
-    formData.append('sourceIPs', JSON.stringify(getArrayValues('sourceIPs[]').map(Number)));
-    formData.append('ttps', JSON.stringify(getArrayValues('ttps[]')));
     formData.append('isActive', document.querySelector('input[name="inlineRadioOptions"]:checked').value === 'True');
     formData.append('follow', document.getElementById('follow').value);
-
-    // Append the file if present
-    const files = document.getElementById('formFile').files; // Get the files from the input
-
-for (let i = 0; i < files.length; i++) {
-    formData.append('file', files[i]); // Append each file to the FormData object
-}
 
     try {
         const response = await fetch(`/api/records/${caseId}`, {

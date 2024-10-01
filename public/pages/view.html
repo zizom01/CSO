@@ -16,7 +16,9 @@
 
     <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="/public/pages/Login">Navbar</a>
+          <a class="" style="margin: 0;" href="/">
+            <img src="/img/file.png" alt="Logo" style="width:60px; height: 50px;">
+        </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -31,9 +33,7 @@
               <li class="nav-item mx-5 fadeIn">
                 <a class="nav-link " href="/Dashboard">Dashboard</a>
               </li>
-              <li class="nav-item mx-5">
-                <button onclick="changeMode()" style="margin-top: 0.4em;" class="bg-white" type="button"><img id="img" src="/img/brightness (1).png" alt="img"></button>
-              </li>
+              
             </ul>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -52,32 +52,30 @@
               </div>
 
         </div>
-        <div class="row">
-            
-        <div class="col">
-            <label for="analysis" class="form-label">Analysis</label>
-            <textarea rows="5" readonly class="form-control" id="analysis1"></textarea>
+        <div class="mb-3 pt-3 border-top border-black pt-2 row">
+          <div class="col-4">
+           <label for="title" class="form-label">Case Title</label>
+           <input name="title" readonly type="text" id="title" class="form-control">
+          </div>
+          
+          <div class="col">
+               <label for="description" class="form-label">Case Description</label>
+                <textarea name="description" readonly placeholder="Enter description here" class="form-control" id="description"></textarea>
+          </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-3">
+          <label for="follow" class="form-label">Followup Date</label>
+           <input name="follow" readonly type="date" id="follow" class="form-control">
         </div>
-        
+        <div class="col-2">
+          <label for="isActive1" class="form-label">Active Case</label>
+          <div class="d-flex justify-content-start align-items-center">
+            <span type="text" name="isActiveText"  ><strong class="text-capitalize" id="isActive1"></strong></span>
+          </div>
+          
         </div>
-        <div class="row mt-2">
-            <div class="col-6" id="ioc">
-
-                <label for="source" class="form-label">IOC's</label>
-
-                <div class="input-group">
-                <input type="text" id="iocs1" readonly class="form-control">
-                </div>
-                
-              </div>
-
-        </div>
-        <div class="row mt-2">
-
-            <div class="col">
-                <label for="recom" class="form-label">Recommendations</label>
-                 <textarea rows="5" readonly class="form-control" id="recommend1"></textarea>
-              </div>
+      </div>
 
         </div>
         <h2 class="d-flex justify-content-center mt-4">Reports</h2>
@@ -102,7 +100,7 @@
       </div>
       </div>
       <div class="d-flex justify-content-center">
-              <a class="btn btn-primary" id="submitbtn" href="reportsForm">Add New Report</a>
+              <a class="btn btn-primary mb-3" id="submitbtn" href="reportsForm">Add New Report</a>
           </div>
 
 
@@ -113,65 +111,12 @@
 
 
 
-    <button onclick="fetchRecordAndGenerateDocx(caseId);">Generate DOCX</button>
+  
     <script>
     // Extract caseId from URL (e.g., /view.html?caseId=12345)
 const urlParams = new URLSearchParams(window.location.search);
 const caseId = urlParams.get('id'); // Get caseId from URL
 // Set the hidden input value (if you have one)
-const recordIdInput = document.getElementById('record-id');
-if (recordIdInput) {
-  recordIdInput.value = caseId;
-}
-
-async function fetchRecordAndGenerateDocx(recordId) {
-    try {
-        // Step 1: Fetch the record data from the server
-        const response = await fetch(`/records/${recordId}`);
-        const recordData = await response.json();
-
-        // Step 2: Send the record data to the server for DOCX generation
-        const docxResponse = await fetch('/generate-docx', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                Title: recordData.title,
-                SourceHere: recordData.sourceIntel,
-                UserHere: recordData.User,
-                CreatedAtHere: recordData.createdAt,
-                DescriptionHere: recordData.description,
-                DestIP: recordData.destinationIPs,
-                SourceIpHere: recordData.sourceIPs,
-                iocsHere: recordData.iocs,
-                TTPSHere: recordData.ttps,
-                recommendationsHere: recordData.recommendations,
-                imgs: recordData.files,  // Ensure this contains correct paths
-            })
-        });
-
-        if (!docxResponse.ok) {
-            throw new Error('Failed to generate DOCX');
-        }
-
-        // Step 3: Download the generated DOCX file
-        const blob = await docxResponse.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'output.docx';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-
-
-
 
 
 
@@ -188,9 +133,35 @@ document.addEventListener('DOMContentLoaded', function() {
       const record = await response.json();
 
       // Populate form fields with record data
-      document.getElementById('analysis1').value = record.analysis || '';
-      document.getElementById('iocs1').value = Array.isArray(record.iocs) ? record.iocs.join(', ') : ''; // Assuming iocs is an array
-      document.getElementById('recommend1').value = record.recommendations || '';
+      document.getElementById('title').value = record.title || '';
+      document.getElementById('description').value = record.description;
+      document.getElementById('record-id').value = record.caseId || '';
+
+
+       // Handle isActive display
+       const isActiveElement = document.getElementById('isActive1'); // Select the correct element
+      if (isActiveElement) {
+        isActiveElement.textContent = record.isActive ? 'Active' : 'Inactive';  // Display "Active" or "Inactive"
+      }
+
+
+      if (record.follow) {
+  const followDate = new Date(record.follow);
+  
+  // Check if the date is valid
+  if (!isNaN(followDate.getTime())) {  
+    const formattedDate = followDate.toISOString().split('T')[0];  // Format to YYYY-MM-DD
+    document.getElementById('follow').value = formattedDate;  // Set value
+    document.getElementById('follow').disabled = false;  // Ensure it's enabled if valid
+  } else {
+    // If date is invalid, disable the input field
+    document.getElementById('follow').disabled = true;
+  }
+} else {
+  // If no follow date is provided, disable the field as well
+  document.getElementById('follow').disabled = true;
+}
+
     } catch (error) {
       console.error('Error fetching record:', error);
     }
@@ -232,7 +203,7 @@ async function fetchRecords(page) {
       row.innerHTML = `
         <th class="text-center">${record.reportId}</th>
         <td class="text-center">${record.User}</td>
-        <td class="text-center">${new Date(record.updatedAt).toLocaleDateString()}</td>
+        <td class="text-center">${new Date(record.updatedAt).toLocaleString()}</td>
         <td class="text-center">
           <div class="input-group" role="group">
             <a class="btn btn-sm btn-outline-primary" href="viewReport?id=${record.reportId}">View</a>

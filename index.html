@@ -17,7 +17,9 @@
  
     <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="/public/pages/Login">Navbar</a>
+          <a class="" style="margin: 0;" href="/">
+            <img src="/img/file.png" alt="Logo" style="width:60px; height: 50px;">
+        </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -32,9 +34,7 @@
               <li class="nav-item mx-5 fadeIn">
                 <a class="nav-link " href="/Dashboard">Dashboard</a>
               </li>
-              <li class="nav-item mx-5">
-                <button onclick="changeMode()" style="margin-top: 0.4em;" class="bg-white" type="button"><img id="img" src="/img/brightness (1).png" alt="img"></button>
-              </li>
+              
             </ul>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -53,9 +53,18 @@
           
      
     
-    <h2 class="m-4 d-flex justify-content-center">Cyber Operations Cases</h2>
+      
+    
+   
     
     <div class="container table-responsive">
+      <div class="d-flex justify-content-center">
+         <img src="/img/file.png" class="" alt="Logo" style="width:13em; height: 13em;">
+      </div>
+     
+
+      <h2 class="m-4 d-flex justify-content-center">تقارير العمليات السيبرانية</h2>
+
         <table class="table table-bordered table-hover" id="records-table">
           <thead class="table-primary">
             <tr class="text-center">
@@ -79,7 +88,7 @@
     </div>
     </div>
     <div class="d-flex justify-content-center">
-            <a class="btn btn-primary" href="form">Add New Report</a>
+            <a class="btn btn-primary mb-3" href="form">Add New Case</a>
         </div>
    </div>
  </div> 
@@ -111,7 +120,7 @@ async function fetchRecords(page) {
         <td class="text-center">${record.title}</td>
         <td class="text-center">${record.User}</td>
         <td class="text-center">${record.isActive ? 'Yes' : 'No'}</td>
-        <td class="text-center">${new Date(record.updatedAt).toLocaleDateString()}</td>
+        <td class="text-center">${new Date(record.updatedAt).toLocaleString()}</td>
         <td class="text-center">${followDate}</td>
         <td class="text-center">
           <div class="input-group" role="group">

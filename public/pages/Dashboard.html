@@ -12,7 +12,9 @@
 
     <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="/public/pages/Login">Navbar</a>
+          <a class="" style="margin: 0;" href="/">
+            <img src="/img/file.png" alt="Logo" style="width:60px; height: 50px;">
+        </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -27,9 +29,7 @@
               <li class="nav-item mx-5 fadeIn">
                 <a class="nav-link " href="/Dashboard">Dashboard</a>
               </li>
-              <li class="nav-item mx-5">
-                <button onclick="changeMode()" style="margin-top: 0.4em;" class="bg-white" type="button"><img id="img" src="/img/brightness (1).png" alt="img"></button>
-              </li>
+              
             </ul>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -51,6 +51,22 @@
                             <label for="password" class="form-label">Password</label>
                             <input name="password" type="password" id="password" class="form-control" required>
                         </div>
+                        <div class="col-2">
+                          <label for="dropdownSelect1" class="form-label">Unit</label>
+                        <select name="unit" class="form-select" id="dropdownSelect1" aria-label="Select example">
+                          <option value="op" selected>Operations</option>
+                          <option value="st">special Tasks</option>
+                          <option value="soc" >Soc</option>
+                        </select>
+                      </div>
+                      <div class="col-2">
+                        <label for="dropdownSelect2" class="form-label">Role</label>
+                      <select name="role" class="form-select" id="dropdownSelect2" aria-label="Select example">
+                        <option value="admin">admin</option>
+                        <option value="unitAdmin">unitAdmin</option>
+                        <option value="user" selected >user</option>
+                      </select>
+                    </div>
                     </div>
                     <div class="row mt-3 d-flex justify-content-center align-content-center">
                         <div class="col text-center">
@@ -66,6 +82,9 @@
                       <tr class="text-center">
                           <th scope="col" class="co">ID</th>
                           <th scope="col" class="co">Username</th>
+                          <th scope="col" class="co">Unit</th>
+                          <th scope="col" class="co">Role</th>
+                          <th scope="col" class="co">Actions</th>
                       </tr>
                      </thead>
                   <tbody>
@@ -90,22 +109,47 @@
         </Div>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-            // Fetch users
-            fetch('/users')
-                .then(response => response.json())
-                .then(users => {
-                    const tableBody = document.querySelector('#users-table tbody');
-                    users.forEach((user, index) => {
-                        const row = document.createElement('tr');
-                        row.classList.add('text-center');
-                        row.innerHTML = `
-                            <td>${index + 1}</td>
-                            <td>${user.username}</td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                })
-                .catch(error => console.error('Error fetching users:', error));
+    // Fetch users
+    fetch('/users')
+        .then(response => response.json())
+        .then(users => {
+            const tableBody = document.querySelector('#users-table tbody');
+            users.forEach((user, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('text-center');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${user.username}</td>
+                    <td>${user.unit}</td>
+                    <td>${user.role}</td>
+                    <td><button class="delete-button" data-id="${user._id}">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Add event listeners to all delete buttons
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', function () {
+                    const userId = this.getAttribute('data-id');
+                    if (confirm('Are you sure you want to delete this user?')) {
+                        fetch(`/users/${userId}`, {
+                            method: 'DELETE'
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                // Remove the row from the table
+                                this.closest('tr').remove();
+                            } else {
+                                alert('Failed to delete user');
+                            }
+                        })
+                        .catch(error => console.error('Error deleting user:', error));
+                    }
+                });
+            });
+        })
+        .catch(error => console.error('Error fetching users:', error));
+});
 
             // Fetch sessions
             fetch('/sessions')
@@ -125,7 +169,6 @@
             });
         })
         .catch(error => console.error('Error fetching sessions:', error));
-        });
         </script>
    <script src="/pages/main.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

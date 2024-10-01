@@ -48,6 +48,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
+
+function authRole(role) {
+  return function (req, res, next) {
+    if (req.isAuthenticated() && req.user.role === role) {
+      return next();
+    } else {
+      res.status(403).json({ message: 'Access denied: Insufficient permissions' });
+    }
+  };
+};
+
 const sessionTracker = new Map();
 
 // Middleware to track sessions
@@ -209,29 +220,67 @@ app.get('/records/:caseId', async (req, res) => {
 
   // Validate the caseId if it's expected to be a number or a specific format
   if (isNaN(caseId)) {
-      return res.status(400).json({ error: 'Invalid caseId format' });
+    return res.status(400).json({ error: 'Invalid caseId format' });
   }
 
   try {
-      const record = await Report.findOne({ caseId: caseId });
-      if (!record) {
-          return res.status(404).json({ error: 'Record not found' });
-      }
+    const record = await Report.findOne({ caseId: caseId });
+    if (!record) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
 
-      // Format the dates
-      const formattedUpdatedAt = formatDate(record.updatedAt);
-      const formattedFollow = formatFollowDate(record.follow);
-
-      res.json({
-        ...record.toObject(),
-        updatedAt: formattedUpdatedAt,
-        follow: formattedFollow
-      });
+    // Send the found record as the response
+    return res.status(200).json({ record });
   } catch (error) {
-      console.error('Error fetching record:', error);
-      res.status(500).json({ error: 'Server error' });
+    console.error('Error fetching record:', error);
+    return res.status(500).json({ error: 'Server error' });
   }
 });
+
+app.get('/caseid/records/:id', async (req, res) => {
+  const caseId = req.params.id;
+
+  // Validate the caseId if it's expected to be a number or a specific format
+  if (isNaN(caseId)) {
+    return res.status(400).json({ error: 'Invalid caseId format' });
+  }
+
+  try {
+    const record = await Report.findOne({ caseId: caseId });
+    if (!record) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    // Send the found record as the response
+    return res.status(200).json({ record });
+  } catch (error) {
+    console.error('Error fetching record:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/docx/records/:id', async (req, res) => {
+  const caseId = req.params.id;
+
+  // Validate the caseId if it's expected to be a number or a specific format
+  if (isNaN(caseId)) {
+    return res.status(400).json({ error: 'Invalid caseId format' });
+  }
+
+  try {
+    const record = await Report2.findOne({ reportId: caseId });
+    if (!record) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    // Send the found record as the response
+    return res.status(200).json({ record });
+  } catch (error) {
+    console.error('Error fetching record:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 
 app.delete('/records/:id', async (req, res) => {
@@ -276,79 +325,55 @@ app.put('/records/:id/toggle-active', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+app.post('/generate-docx', async (req, res) => {
+  const { TTPSHere, recommendationsHere, portDest, portSrc, DescriptionHere, Title, iocsHere, SourceHere, SourceIpHere, DestIP, UserHere, CreatedAtHere } = req.body;
+  console.log('Received payload:', req.body); // Ensure this logs all fields
+  console.log('Title:', Title); // Specific log for Title
+  console.log('DescriptionHere:', DescriptionHere); // Specific log for DescriptionHere
+  try {
+    const content = await fs.promises.readFile(path.resolve(__dirname, 'Templete.docx'), 'binary');
+    const zip = new PizZip(content);
 
-app.post('/generate-docx', (req, res) => {
-  const { Title, TTPSHere, recommendationsHere, iocsHere, imgs, SourceHere, SourceIpHere, DestIP, DescriptionHere, UserHere, CreatedAtHere } = req.body;
-
-  const content = fs.readFileSync(path.resolve(__dirname, 'Templete.docx'), 'binary');
-  const zip = new PizZip(content);
-
-  // Initialize an object to store image data
-  const images = {};
-  imgs.forEach((imgPath, index) => {
-      try {
-          const resolvedPath = path.isAbsolute(imgPath) ? imgPath : path.resolve(__dirname, imgPath);
-          const imgData = fs.readFileSync(resolvedPath);
-          images[`image${index + 1}`] = imgData;
-          console.log(`Loaded image${index + 1}: ${resolvedPath}`);
-      } catch (err) {
-          console.error(`Error loading image: ${imgPath}`, err);
-      }
-  });
-
-  // Define image options for Docxtemplater
-  const imageOptions = {
-      centered: true,
-      getImage: function(tagValue) {
-          console.log(`Retrieving image for tag: ${tagValue}`);
-          return images[tagValue];
-      },
-      getSize: function(img, tagValue) {
-          return [150, 150];  // Adjust size if needed
-      }
-  };
-
-  const imageModule = new ImageModule(imageOptions);
-
-  const doc = new Docxtemplater(zip, {
-      modules: [imageModule],
+    const doc = new Docxtemplater(zip, {
       paragraphLoop: true,
       linebreaks: true,
-  });
+    });
 
-  const renderData = {
+    const renderData = {
       Title,
+      DescriptionHere,
       SourceHere,
       UserHere,
       CreatedAtHere,
-      DescriptionHere,
       DestIP,
       SourceIpHere,
+      portDest,
+      portSrc,
       iocsHere,
       TTPSHere,
       recommendationsHere,
-      imgs,
-  };
+    };
 
-  // Map image paths to placeholders
-
-  try {
+    try {
       doc.render(renderData);
-  } catch (err) {
+    } catch (err) {
       console.error('Error rendering the document:', err);
       return res.status(500).send(`Error generating document: ${err.message}`);
-  }
+    }
 
-  const buf = doc.getZip().generate({
+    const buf = doc.getZip().generate({
       type: 'nodebuffer',
       compression: 'DEFLATE',
-  });
+    });
 
-  res.setHeader('Content-Disposition', 'attachment; filename=output.docx');
-  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-  res.send(buf);
+    res.setHeader('Content-Disposition', 'attachment; filename=output.docx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.send(buf);
+  } catch (err) {
+    console.error('Error reading template:', err);
+    res.status(500).send('Error reading template file');
+  }
 });
-
 
 
 
@@ -477,6 +502,8 @@ app.put('/api/records/:id', upload.array('file'), async (req, res) => {
       record.sourceIPs = JSON.parse(req.body.sourceIPs || '[]'); // Parse JSON arrays
       record.ttps = JSON.parse(req.body.ttps || '[]'); // Parse JSON arrays
       record.isActive = req.body.isActive === 'true'; // Convert to boolean
+      record.follow = req.body.follow;
+      record.port = JSON.parse(req.body.port || '[]');
 
 
       // Handle multiple files
@@ -520,6 +547,8 @@ app.put('/nest/api/records/:id', upload.array('file'), async (req, res) => {
       record.sourceIPs = JSON.parse(req.body.sourceIPs || '[]'); // Parse JSON arrays
       record.ttps = JSON.parse(req.body.ttps || '[]'); // Parse JSON arrays
       record.isActive = req.body.isActive === 'true'; // Convert to boolean
+      record.portDest = JSON.parse(req.body.portDest || '[]');
+      record.portSrc = JSON.parse(req.body.portSrc || '[]');
 
 
       // Handle multiple files
@@ -583,32 +612,14 @@ app.post('/form', async (req, res) => {
           caseId: formData.caseId,  // Ensure caseId is a string
           title: formData.title,  // Ensure title is a string
           description: formData.description,  // Ensure description is a string
-          toolsUsed: formData.toolsUsed,  // Split or default to an empty array
-          alertPolicy: formData.alertPolicy,  // Split or default to an empty array
-          sourceIntel: formData.sourceIntel,  // Ensure sourceIntel is a string
-          reportNum: formData.reportNum,  // Ensure reportNum is a string
-          letterNum: formData.letterNum,  // Ensure letterNum is a string
-          User: formData.User,
-          analysis: formData.analysis,  // Ensure analysis is a string
-          destinationIPs: formData.destinationIPs,  // Split or default to an empty array
-          sourceIPs: formData.sourceIPs,  // Split or default to an empty array
-          iocType: formData.iocType,
-          iocs: formData.iocs,  // Split or default to an empty array
-          recommendations: formData.recommendations,  // Ensure recommendations is a string
           isActive: formData.inlineRadioOptions === 'True',
-          ttps: formData.ttps,  // Split or default to an empty array
-          fileType: formData.fileType, // Ensure fileType is a string
-          //file: formData.file  // Convert file to Buffer if present
           follow: formData.follow, 
           User: req.user.username,
 
         
 
       });
-      if (req.files && req.files.length > 0) {
-        const filePaths = req.files.map(file => `/IS/public/uploads/${file.filename}`);
-        report.files = filePaths; // Store array of file paths
-    }
+      
 
       await report.save();
 
@@ -635,45 +646,61 @@ app.get('/reportsForm', async (req, res) => {
   res.sendFile(path.join(__dirname, '/public/pages','reportsForm.html'));
 })
 
-app.post('/reportsForm/:id', async (req, res) => {
+app.post('/reportsForm/:id', upload.array('file'), async (req, res) => {
   try {
-      console.log('Received Form Data:', req.body);
-      const caseId = req.params.id; 
-      const formData = req.body;
-      const report = new Report2({
-          caseId: caseId,  // Ensure caseId is a string
-          title: formData.title,  // Ensure title is a string
-          description: formData.description,  // Ensure description is a string
-          toolsUsed: formData.toolsUsed,  // Split or default to an empty array
-          alertPolicy: formData.alertPolicy,  // Split or default to an empty array
-          sourceIntel: formData.sourceIntel,  // Ensure sourceIntel is a string
-          reportNum: formData.reportNum,  // Ensure reportNum is a string
-          letterNum: formData.letterNum,  // Ensure letterNum is a string
-          User: formData.User,
-          analysis: formData.analysis,  // Ensure analysis is a string
-          destinationIPs: formData.destinationIPs,  // Split or default to an empty array
-          sourceIPs: formData.sourceIPs,  // Split or default to an empty array
-          iocType: formData.iocType,
-          iocs: formData.iocs,  // Split or default to an empty array
-          recommendations: formData.recommendations,  // Ensure recommendations is a string
-          isActive: formData.inlineRadioOptions === 'True',
-          ttps: formData.ttps,  // Split or default to an empty array
-          fileType: formData.fileType, // Ensure fileType is a string
-          //file: formData.file  // Convert file to Buffer if present
-          User: req.user.username,
-      });
+    console.log('Files:', req.files);  // Debugging line to check uploaded files
+    console.log('Received Form Data:', req.body);
+    
+    const caseId = req.params.id; 
+    const formData = req.body;
+    
+    const report = new Report2({
+      title: formData.title,
+      description: formData.description,
+      portDest: formData.portDest,
+      portSrc: formData.portSrc,
+      caseId: caseId,
+      toolsUsed: formData.toolsUsed,
+      alertPolicy: formData.alertPolicy,
+      sourceIntel: formData.sourceIntel,
+      reportNum: formData.reportNum,
+      letterNum: formData.letterNum,
+      User: formData.User,
+      analysis: formData.analysis,
+      destinationIPs: formData.destinationIPs,
+      sourceIPs: formData.sourceIPs,
+      iocType: formData.iocType,
+      iocs: formData.iocs,
+      recommendations: formData.recommendations,
+      ttps: formData.ttps,
+      fileType: formData.fileType,
+      User: req.user.username,
+    });
 
-      await report.save();
+    // Log to check if files are being processed
+    if (req.files && req.files.length > 0) {
+      console.log('Files Uploaded:', req.files);
+      const filePaths = req.files.map(file => `/IS/public/uploads/${file.filename}`);
+      report.files = filePaths;
+    }
 
-      res.status(200).sendFile(path.join(__dirname, "public/pages/success.html"));
+    await report.save();
+
+    res.status(200).sendFile(path.join(__dirname, "public/pages/success.html"));
   } catch (error) {
-      console.error('Error saving form data:', error);
-      res.status(500).json({ message: 'Error saving form data', error });
+    console.error('Error saving form data:', error);
+    res.status(500).json({ message: 'Error saving form data', error });
   }
 });
 
+
 app.get('/Dashboard', ensureAuthenticated, (req, res) => {
+  if (req.user.username == "khmes") {
   res.sendFile(path.join(__dirname, '/public/pages', 'Dashboard.html'));
+  } else {
+    res.sendFile(path.join(__dirname, '/public/pages', 'auth.html'));
+    console.log(req.user.username);
+  }
 })
 
 app.get('/View', ensureAuthenticated, (req, res) => {
@@ -683,15 +710,15 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/pages', 'Login.html'));
 })
 app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, unit, role } = req.body;
 
   try {
-      const newUser = new User({ username, password });
+      const newUser = new User({ username, password, unit, role });
       await newUser.save();
       res.redirect('/dashboard'); // Redirect to a different page after successful registration
   } catch (err) {
       console.error('Error registering user:', err);
-      res.redirect('/register'); // Redirect back to the registration page on failure
+      res.redirect('/dashboard'); // Redirect back to the registration page on failure
   }
 });
 

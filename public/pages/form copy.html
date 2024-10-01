@@ -9,7 +9,7 @@
 </head>
 <body class="bg-body-secondary">
    
-    <h2 class="d-flex justify-content-center my-4">Fill in the report details</h2>
+    <h2 class="d-flex justify-content-center my-4">Fill in the case details</h2>
 
     <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
@@ -24,7 +24,7 @@
               <li class="nav-item mx-5 fadeIn">
                 <a class="nav-link active " aria-current="page" href="/">Cases</a>
               </li>
-              <li class="nav-item mx-5 fadeIn">
+              <li id="malware" class="nav-item mx-5 fadeIn">
                 <a class="nav-link " href="/Malware">Malware</a>
               </li>
               <li class="nav-item mx-5 fadeIn">
@@ -42,26 +42,25 @@
 
       <div class="container">
         
-            <form id="reportForm" action="reportsForm" method="POST" enctype="multipart/form-data">
+            <form id="reportForm" action="form" method="POST">
                 <div>
-                    <div class="row mb-3">
-                      <div class="col-2">
-                        <label for="caseid" class="form-label">Case ID</label>
+                    <div class="mb-3">
+                  <label for="caseid" class="form-label">Case ID</label>
                   <input name="caseId" type="text" id="caseid" class="form-control-sm" disabled>
-                      </div>
-                      <div class="col-3 d-flex align-items-end ">
-                        <div class="d-inline text-secondary">The Case ID is auto filled</div>
-                      </div>
-                      <div class="col d-none align-items-end">
-                        <input name="title" type="text" id="title" class="form-control" autocomplete="on"  list="names">
-                      </div>
-                      <div class="col d-none align-items-end">
-                        <input name="description" type="text" id="desc" class="form-control" autocomplete="on"  list="names">
-                      </div>
-                 
+                  <div class="d-inline text-secondary">The Case ID is auto filled</div>
+                </div>
+                <div class="mb-3 pt-3 border-top border-black pt-2 row">
+                    <div class="col-4">
+                     <label for="title" class="form-label">Case Title</label>
+                     <input name="title" required type="text" id="title" class="form-control">
+                    </div>
+                    
+                    <div class="col">
+                         <label for="description" class="form-label">Case Description</label>
+                          <textarea name="description" required placeholder="Enter description here" class="form-control" id="description"></textarea>
+                    </div>
                 </div>
                 <div class="mb-4 pt-4 border-top border-black row justify-content-start">
-                 
                       <div class="col">
                         <div id="toolsdiv">
                           <label for="title3" class="form-label">Tools Used</label>
@@ -97,9 +96,9 @@
                      </div>
                      <div class="col">
                       <label for="reportNum" class="form-label">Report Number<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
-                      <input name="reportNum" disabled type="text" id="reportNum" class="form-control">
+                      <input type="number" name="reportNum" disabled type="text" id="reportNum" class="form-control">
                       <label for="letter" class="form-label">Letter Number<span class="text-primary ms-2" style="font-size: small;">Optional</span></label>
-                      <input name="letterNum" disabled type="text" id="letter" class="form-control">
+                      <input type="number" name="letterNum" disabled type="text" id="letter" class="form-control">
                       </div>
                 </div>
                 <div class="row mb-3 pt-3 border-top border-black pt-2">
@@ -115,9 +114,7 @@
                     <label for="ipdest" class="form-label mt-1">Destination IP</label>
 
                     <div class="input-group">
-                      <input required placeholder="IP" name="destinationIPs[]" type="text" id="ipdest" class="form-control"
-                      title="Enter a valid IPv4 address (e.g., 192.168.1.1)" pattern="^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$">
-                      <input required placeholder="Port" id="portDest" name="portDest[]" class="form-control" type="text" title="Enter a valid port number (1-65535)" pattern="^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$">
+                    <input type="number" name="destinationIPs" type="text" id="ipdest" class="form-control">
                     <button class="btn btn-outline-primary" type="button" id="button-addon3">Add</button>
                     <button class="btn btn-outline-danger" type="button" id="button-delete-dest">Delete</button>
                     </div>
@@ -128,9 +125,7 @@
                   <label for="ipsrc1" class="form-label mt-1">Source IP</label>
 
                   <div class="input-group">
-                  <input required placeholder="IP" name="sourceIPs" type="text" id="ipsrc1" class="form-control"
-                  title="Enter a valid IPv4 address (e.g., 192.168.1.1)" pattern="^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$">
-                  <input required placeholder="Port" id="portSrc" name="portSrc[]" class="form-control" type="text" title="Enter a valid port number (1-65535)" pattern="^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$">
+                  <input type="number" name="sourceIPs" type="text" id="ipsrc1" class="form-control">
                   <button class="btn btn-outline-primary" type="button" id="button-addon4">Add</button>
                   <button class="btn btn-outline-danger" type="button" id="button-delete-src">Delete</button>
                   </div>
@@ -143,7 +138,7 @@
 
                     <label for="iocDropDown" class="form-label">IOC's</label>
                     <select name="iocType" class="form-select form-select-sm mb-2 iocbox" style="width: 10em;" id="iocDropDown" aria-label="Select example">
-                      <option disabled selected value="non">Type of IOC</option>
+                      <option disabled selected>Type of IOC</option>
                       <option value="Hash">Hash</option>
                       <option value="IP">IP</option>
                     </select>
@@ -162,7 +157,19 @@
                 
                 <div class="row mb-3 pt-3 border-top border-black pt-2">
 
-                 
+                  <div class="form-group col-2">
+                    <label for="options" class="mb-2">Active Case?</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" required type="radio" name="inlineRadioOptions" id="inlineRadio1" value="True">
+                            <label class="form-check-label" for="inlineRadio1">Yes</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" required type="radio" name="inlineRadioOptions" id="inlineRadio2" value="False">
+                            <label class="form-check-label" for="inlineRadio2">No</label>
+                        </div>
+                    </div>
+                </div>
                     <div class="col" id="ttpdiv">
                       <label for="ttp" class="form-label">TTP's</label>
                       <div class="input-group">
@@ -175,24 +182,16 @@
                     
                     
                     </div>
-                  <div class="row pt-4 mb-4 border-top border-black pt-2">
-                    <div class="col-2">
-                      <label for="dropdownSelect" class="form-label">Choose an option:</label>
-                    <select name="fileType" class="form-select" id="dropdownSelect" aria-label="Select example">
-                      <option value="" disabled selected>Type of file</option>
-                      <option value="Report">Report</option>
-                      <option value="Screenshot">Screenshot</option>
-                    </select>
+                  <div class="row mb-3">
+                  <div class="col-3">
+                    <label for="follow" class="form-label">Followup Date</label>
+                     <input name="follow" required type="date" id="follow" class="form-control">
                   </div>
-                  <div class="col">
-                    <label for="formFile" class="form-label">Upload a file</label>
-                    <input name="file" class="form-control" type="file" id="formFile">
-                </div>
                 </div>
                     
 
-                <div class=" d-flex justify-content-center">
-                     <button type="submit" id="submitbtn" class="btn btn-primary my-2">Submit</button>
+                <div class=" d-flex justify-content-center mb-3 pt-3 border-top border-black">
+                     <button type="submit" class="btn btn-primary my-2">Submit</button>
                 </div>
                
                 
@@ -200,53 +199,16 @@
         
       </div>
       <script>
+        const today = new Date().toISOString().split('T')[0];
 
-
-// Set the min attribute of the date input to today's date
-
-
-
-    // Fetch data based on a case ID from the URL
-document.addEventListener('DOMContentLoaded', function() {
-  // Extract caseId from the URL parameters
-  const urlParams = new URLSearchParams(window.location.search);
-  const caseId = urlParams.get('id'); // Get caseId from URL
-  const intel = document.getElementById('intel')
-
-  const form = document.getElementById("reportForm");
-
-  form.setAttribute("action", "/reportsForm/" + caseId);
-  
-
-  if (!caseId) {
-    console.error('No case ID found in URL');
-    return;
-  }
-
-  // Fetch data from the server using the caseId
-  fetch(`/api/records/${caseId}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data) {
-        // Populate form fields with fetched data
-        document.getElementById('caseid').value = data.caseId;
-        document.getElementById('title').value = data.title;
-        document.getElementById('desc').value = data.description;
-    
-      } else {
-        console.error('Record not found');
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching record:', error);
-    });
-});
-
+        // Set the min attribute of the date input to today's date
+   
 
 
       </script>
     <script src="/pages/ioc.js"></script>
    <script src="/pages/main.js"></script>
+   <script src="/pages/form_submit.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
