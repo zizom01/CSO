@@ -71,6 +71,7 @@
                 <th scope="col" class="co">Case ID</th>
                 <th scope="col" class="co">Title</th>
                 <th scope="col" class="co">Created By</th>
+                <th scope="col" class="co">Unit</th>
                 <th scope="col" class="co">Active</th>
                 <th scope="col" class="co">Last Updated</th>
                 <th scope="col" class="co">Next Followup</th>
@@ -119,6 +120,7 @@ async function fetchRecords(page) {
         <th class="text-center">${record.caseId}</th>
         <td class="text-center">${record.title}</td>
         <td class="text-center">${record.User}</td>
+        <td class="text-center">${record.unit}</td>
         <td class="text-center">${record.isActive ? 'Yes' : 'No'}</td>
         <td class="text-center">${new Date(record.updatedAt).toLocaleString()}</td>
         <td class="text-center">${followDate}</td>

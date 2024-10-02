@@ -6,10 +6,10 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: {
     type: String,
-    enum: ['admin', 'unitAdmin', 'user'],
     default: 'user', // Default role for new users
   },
   unit: { type: String},
+  branch: { type: String},
 });
 
 // Hash password before saving the user

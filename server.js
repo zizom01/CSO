@@ -4,11 +4,11 @@ const path = require('path');
 const app = express();
 const { Document, Packer, Paragraph, TextRun } = require('docx');
 const env = require('dotenv').config()
-const Report = require('/IS/public/pages/report_schema');
-const Report2 = require('/IS/public/pages/nestedForm_schema');
+const Report = require(path.join(__dirname, '/public/pages', 'report_schema.js'));
+const Report2 = require(path.join(__dirname, '/public/pages', 'nestedForm_schema.js'));
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const User = require('/IS/public/pages/User.js');
+const User = require(path.join(__dirname, '/public/pages', 'User.js'));
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const uri = process.env.URI
@@ -65,13 +65,20 @@ const sessionTracker = new Map();
 app.use((req, res, next) => {
   if (req.session && req.session.passport && req.session.passport.user) {
     const sessionId = req.sessionID;
+
     // Retrieve the user from the database using the ID stored in the session
     User.findById(req.session.passport.user)
       .then(user => {
         if (user) {
-          sessionTracker.set(sessionId, user.username); // Store the username
+          // Store username, unit, and branch in the session tracker
+          sessionTracker.set(sessionId, {
+            username: user.username,
+            unit: user.unit,        // Assuming `unit` is a field in your User model
+            branch: user.branch     // Assuming `branch` is a field in your User model
+          });
         } else {
-          sessionTracker.delete(sessionId); // Remove session if user not found
+          // Remove the session if the user is not found in the database
+          sessionTracker.delete(sessionId);
         }
         next();
       })
@@ -83,6 +90,7 @@ app.use((req, res, next) => {
     next();
   }
 });
+
 
 // API to get active sessions
 app.get('/sessions', (req, res) => {
@@ -182,7 +190,7 @@ passport.deserializeUser(async function(id, done) {
     const user = await User.findById(id).exec();
     if (user) {
       // Attach the entire user object to req.user, including username
-      done(null, { id: user.id, username: user.username });
+      done(null, { id: user.id, username: user.username, unit: user.unit, branch: user.branch });
     } else {
       done(new Error('User not found'), null);
     }
@@ -596,7 +604,7 @@ app.get('/form', ensureAuthenticated, (req, res) => {
 })
 app.get('/users', async (req, res) => {
   try {
-      const users = await User.find({}, 'username'); // Fetch users and only return the username field
+      const users = await User.find({}); // Fetch users and only return the username field
       res.json(users);
   } catch (err) {
       console.error('Error fetching users:', err);
@@ -605,8 +613,8 @@ app.get('/users', async (req, res) => {
 });
 app.post('/form', async (req, res) => {
   try {
-      console.log('Received Form Data:', req.body);
-      console.log('User:', req.session.name);
+      console.log('Received Form Data:', req.body, req.user);
+      console.log('User:', req.user.unit, req.user.role, req.user.username);
       const formData = req.body;
       const report = new Report({
           caseId: formData.caseId,  // Ensure caseId is a string
@@ -615,7 +623,7 @@ app.post('/form', async (req, res) => {
           isActive: formData.inlineRadioOptions === 'True',
           follow: formData.follow, 
           User: req.user.username,
-
+          unit: req.user.unit,
         
 
       });
@@ -695,7 +703,7 @@ app.post('/reportsForm/:id', upload.array('file'), async (req, res) => {
 
 
 app.get('/Dashboard', ensureAuthenticated, (req, res) => {
-  if (req.user.username == "khmes") {
+  if (req.user.username == "admin") {
   res.sendFile(path.join(__dirname, '/public/pages', 'Dashboard.html'));
   } else {
     res.sendFile(path.join(__dirname, '/public/pages', 'auth.html'));
@@ -710,10 +718,10 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/pages', 'Login.html'));
 })
 app.post('/register', async (req, res) => {
-  const { username, password, unit, role } = req.body;
+  const { username, password, unit, role, branch } = req.body;
 
   try {
-      const newUser = new User({ username, password, unit, role });
+      const newUser = new User({ username, password, unit, role, branch });
       await newUser.save();
       res.redirect('/dashboard'); // Redirect to a different page after successful registration
   } catch (err) {

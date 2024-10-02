@@ -23,22 +23,9 @@ const reportSchema = new mongoose.Schema({
     caseId: { type: Number}, // Will hold the incremented ID
     title: { type: String },
     description: { type: String},
-    toolsUsed: { type: [String], default: [] },
-    alertPolicy: { type: [String], default: [] },
-    sourceIntel: { type: String },
-    reportNum: { type: String },
-    letterNum: { type: String },
     User: {type: String },
-    analysis: { type: String },
-    destinationIPs: { type: [Number], default: [] },
-    sourceIPs: { type: [Number], default: [] },
-    iocType: { type: [String], default: []},
-    iocs: { type: [String], default: [] },
-    recommendations: { type: String},
+    unit: { type: String },
     isActive: { type: Boolean},
-    ttps: { type: [String], default: [] },
-    fileType: { type: String},
-    files: [{ type: String }],
     follow: {type: Date}
   }, {
     timestamps: true // Automatically adds `createdAt` and `updatedAt`

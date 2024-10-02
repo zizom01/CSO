@@ -52,19 +52,27 @@
                             <input name="password" type="password" id="password" class="form-control" required>
                         </div>
                         <div class="col-2">
-                          <label for="dropdownSelect1" class="form-label">Unit</label>
-                        <select name="unit" class="form-select" id="dropdownSelect1" aria-label="Select example">
-                          <option value="op" selected>Operations</option>
-                          <option value="st">special Tasks</option>
-                          <option value="soc" >Soc</option>
+                          <label for="unit" class="form-label">Unit</label>
+                        <select required name="unit" class="form-select" id="unit" aria-label="Select example">
+                          <option value="Operations" selected>Operations</option>
+                          <option value="specialTasks">special Tasks</option>
+                          <option value="Soc" >Soc</option>
                         </select>
                       </div>
                       <div class="col-2">
+                        <label for="branch" class="form-label">Branch</label>
+                      <select required name="branch" class="form-select" id="branch" aria-label="Select example">
+                        <option value="Threat-hunt" selected>Threat hunt</option>
+                        <option value="Malware-analysis">Malware analysis</option>
+                        <option value="Penetration-test" >Penetration test</option>
+                      </select>
+                    </div>
+                      <div class="col-2">
                         <label for="dropdownSelect2" class="form-label">Role</label>
-                      <select name="role" class="form-select" id="dropdownSelect2" aria-label="Select example">
-                        <option value="admin">admin</option>
-                        <option value="unitAdmin">unitAdmin</option>
-                        <option value="user" selected >user</option>
+                      <select required name="role" class="form-select" id="dropdownSelect2" aria-label="Select example">
+                        <option value="Admin">admin</option>
+                        <option value="Unit-Admin">unitAdmin</option>
+                        <option value="User" selected>user</option>
                       </select>
                     </div>
                     </div>
@@ -83,6 +91,7 @@
                           <th scope="col" class="co">ID</th>
                           <th scope="col" class="co">Username</th>
                           <th scope="col" class="co">Unit</th>
+                          <th scope="col" class="co">branch</th>
                           <th scope="col" class="co">Role</th>
                           <th scope="col" class="co">Actions</th>
                       </tr>
@@ -108,19 +117,27 @@
             </div>
         </Div>
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
+
+
+  // Object to store the options for the second select box based on the first select box's value
+
+
+
+  document.addEventListener('DOMContentLoaded', function () {
     // Fetch users
     fetch('/users')
         .then(response => response.json())
         .then(users => {
             const tableBody = document.querySelector('#users-table tbody');
             users.forEach((user, index) => {
+              console.log("Info", user.unit, user.role);
                 const row = document.createElement('tr');
                 row.classList.add('text-center');
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${user.username}</td>
                     <td>${user.unit}</td>
+                    <td>${user.branch}</td>
                     <td>${user.role}</td>
                     <td><button class="delete-button" data-id="${user._id}">Delete</button></td>
                 `;
@@ -169,6 +186,56 @@
             });
         })
         .catch(error => console.error('Error fetching sessions:', error));
+
+
+    const optionsMap = {
+    Operations: [
+      { value: 'Threat-hunt', text: 'Threat-hunt' },
+      { value: 'Malware-analysis', text: 'Malware-analysis' },
+      { value: 'Penetration-test', text: 'Penetration-test' }
+    ],
+    specialTasks: [
+      { value: 'ST placeholder 1', text: 'ST placeholder 1' },
+      { value: 'ST placeholder 2', text: 'ST placeholder 2' },
+      { value: 'ST placeholder 3', text: 'ST placeholder 3' }
+    ],
+    Soc: [
+      { value: 'Soc placeholder 1', text: 'Soc placeholder 1' },
+      { value: 'Soc placeholder 2', text: 'Soc placeholder 2' },
+      { value: 'Soc placeholder 3', text: 'Soc placeholder 3' }
+    ]
+  };
+
+  // Get references to the select elements
+  const selectBox1 = document.getElementById('unit');
+  const selectBox2 = document.getElementById('branch');
+
+  // Function to update the second select box based on the first select box's selected value
+  function updateSelectBox2() {
+    // Clear existing options in the second select box
+    selectBox2.innerHTML = '';
+
+    // Get the selected value from the first select box
+    const selectedValue = selectBox1.value;
+
+    // Get the corresponding options from the optionsMap
+    const options = optionsMap[selectedValue];
+
+    // Populate the second select box with new options
+    options.forEach(option => {
+      const optElement = document.createElement('option');
+      optElement.value = option.value;
+      optElement.textContent = option.text;
+      selectBox2.appendChild(optElement);
+    });
+  }
+
+  // Add an event listener to the first select box to trigger the update when the selection changes
+  selectBox1.addEventListener('change', updateSelectBox2);
+
+  // Initialize the second select box with the first set of options
+  updateSelectBox2();
+
         </script>
    <script src="/pages/main.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
