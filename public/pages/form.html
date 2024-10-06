@@ -76,6 +76,28 @@
                   <label for="follow" class="form-label">Followup Date</label>
                    <input name="follow" required type="date" id="follow" class="form-control">
                 </div>
+                <div id="unitDiv" hidden class="col-2">
+                  <label for="asUnit" class="form-label">Assigne unit</label>
+                <select required name="assigneUnit" class="form-select" id="asUnit" aria-label="Select example">
+                  <option value="Operations" selected>Operations</option>
+                  <option value="specialTasks">special Tasks</option>
+                  <option value="Soc" >Soc</option>
+                </select>
+              </div>
+                <div id="branchDiv" hidden class="col-2">
+                  <label for="branch" class="form-label">Assigne Branch</label>
+                <select required name="asBranch" class="form-select" id="branch" aria-label="Select example">
+                  <option value="Threat-hunt" selected>Threat hunt</option>
+                  <option value="Malware-analysis">Malware analysis</option>
+                  <option value="Penetration-test" >Penetration test</option>
+                </select>
+              </div>
+              <div id="userDiv" hidden class="col-2">
+                <label for="asUser" class="form-label">Assigne User</label>
+              <select required name="assigneUser" class="form-select" id="asUser" aria-label="Select example">
+
+              </select>
+            </div>
                     
                     
                     </div>
@@ -98,6 +120,119 @@ document.getElementById('follow').setAttribute('min', today);
 
         // Set the min attribute of the date input to today's date
    
+        document.addEventListener('DOMContentLoaded', () => {
+
+// Fetch the current user data
+fetch('/api/current-user')
+  .then(response => response.json())
+  .then(user => {
+
+    const branch = document.getElementById('branchDiv');
+    const userDiv = document.getElementById('userDiv');
+    const unit = document.getElementById('unitDiv');
+    const selectBox2 = document.getElementById('branch'); // Second select element
+    const selectBox1 = document.getElementById('asUnit'); // Unit select element for Admin
+
+    // First, hide all elements by default
+    branch.hidden = true;
+    userDiv.hidden = true;
+    unit.hidden = true;
+
+    // Check user role and adjust visibility accordingly
+    if (user.role === 'Unit-Admin') {
+      branch.hidden = false;
+      userDiv.hidden = false;
+    } else if (user.role === 'User') {
+      userDiv.hidden = false;  // Only show userDiv for regular users
+    } else if (user.role === 'Admin') {
+      branch.hidden = false;
+      userDiv.hidden = false;
+      unit.hidden = false;  // Show all divs for admin
+    }
+
+    // Options based on units
+    const optionsMap = {
+      Operations: [
+        { value: 'Threat-hunt', text: 'Threat-hunt' },
+        { value: 'Malware-analysis', text: 'Malware-analysis' },
+        { value: 'Penetration-test', text: 'Penetration-test' }
+      ],
+      specialTasks: [
+        { value: 'ST placeholder 1', text: 'ST placeholder 1' },
+        { value: 'ST placeholder 2', text: 'ST placeholder 2' },
+        { value: 'ST placeholder 3', text: 'ST placeholder 3' }
+      ],
+      Soc: [
+        { value: 'Soc placeholder 1', text: 'Soc placeholder 1' },
+        { value: 'Soc placeholder 2', text: 'Soc placeholder 2' },
+        { value: 'Soc placeholder 3', text: 'Soc placeholder 3' }
+      ]
+    };
+
+    // Function to update the second select box for non-admin users
+    function updateSelectBox2ForUserUnit() {
+      selectBox2.innerHTML = '';  // Clear existing options
+
+      const userUnit = user.unit;
+      const options = optionsMap[userUnit] || [];
+
+      options.forEach(option => {
+        const optElement = document.createElement('option');
+        optElement.value = option.value;
+        optElement.textContent = option.text;
+        selectBox2.appendChild(optElement);
+      });
+    }
+
+    // Function to update the second select box for Admin
+    function updateSelectBox2ForAdmin() {
+      selectBox1.addEventListener('change', () => {
+        selectBox2.innerHTML = '';  // Clear existing options
+
+        const selectedValue = selectBox1.value;
+        const options = optionsMap[selectedValue] || [];
+
+        options.forEach(option => {
+          const optElement = document.createElement('option');
+          optElement.value = option.value;
+          optElement.textContent = option.text;
+          selectBox2.appendChild(optElement);
+        });
+      });
+    }
+
+    // Initialize the select box based on user role
+    if (user.role !== 'Admin') {
+      updateSelectBox2ForUserUnit();  // For non-admin users, based on unit
+    } else {
+      updateSelectBox2ForAdmin();  // For admin, based on unit selection
+    }
+  })
+  .catch(error => console.error('Error fetching user data:', error));
+  fetch('/usersList')
+      .then(response => response.json())
+      .then(users => {
+        const selectBox = document.getElementById('asUser');
+
+        // Clear existing options (optional if you only want the newly fetched ones)
+        selectBox.innerHTML = '<option value="" disabled selected>Select a user</option>';
+
+        // Iterate over users and create option elements
+        users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.username; // Set the value to the username
+          option.textContent = user.username; // Set the visible text to the username
+          selectBox.appendChild(option); // Append the option to the select box
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching users:', error);
+      });
+});
+
+
+
+// Assume userUnit is passed from the backend and available on the frontend
 
 
       </script>

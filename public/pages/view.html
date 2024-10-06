@@ -9,6 +9,43 @@
     <script src="https://cdn.jsdelivr.net/npm/pizzip@3.0.6/dist/pizzip.min.js"></script>
     <script src="https://unpkg.com/docxtemplater@3.0.0/build/docxtemplater.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <style>
+      /* Styles for the log box */
+      .log-box-container {
+        width: 100%;
+        margin: 20px 0;
+      }
+  
+      .log-box-header {
+        background-color: #333;
+        color: white;
+        padding: 10px;
+        cursor: pointer;
+        text-align: center;
+        font-size: 18px;
+      }
+  
+      .log-box-content {
+        width: 100%;
+        height: 300px;
+        background-color: #f4f4f4;
+        overflow-y: scroll;
+        padding: 15px;
+        display: none; /* Hidden by default */
+        border: 1px solid #ddd;
+      }
+  
+      .log-box-content pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+  
+      /* Optional: Style to make the log text more readable */
+      .log-box-content pre {
+        font-family: monospace;
+        color: #333;
+      }
+    </style>
 </head>
 <body class="bg-body-secondary">
    
@@ -109,14 +146,62 @@
 
         </div>
 
-
+        <div class="log-box-container">
+          <div class="log-box-header" id="logBoxToggle">
+            Show Log
+          </div>
+          <div class="log-box-content" id="logBoxContent" style="display: none;">
+            <pre id="logContent">No logs available.</pre>
+          </div>
+        </div>
 
   
     <script>
     // Extract caseId from URL (e.g., /view.html?caseId=12345)
-const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(window.location.search);
 const caseId = urlParams.get('id'); // Get caseId from URL
 // Set the hidden input value (if you have one)
+  // Collapsible logic
+  const logBoxToggle = document.getElementById('logBoxToggle');
+  const logBoxContent = document.getElementById('logBoxContent');
+  const logContent = document.getElementById('logContent');
+
+  logBoxToggle.addEventListener('click', () => {
+    const isHidden = logBoxContent.style.display === 'none';
+
+    if (isHidden) {
+      fetchLogs();  // Fetch logs when expanding the log box
+    }
+
+    logBoxContent.style.display = isHidden ? 'block' : 'none';
+    logBoxToggle.textContent = isHidden ? 'Hide Log' : 'Show Log';
+  });
+
+  // Function to fetch logs from the server
+  function fetchLogs() {
+    fetch(`/logs/${caseId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.logs && data.logs.length > 0) {
+          // Clear the log content first
+          logContent.textContent = '';
+
+          // Loop through the logs and append them to the log box
+          data.logs.forEach(log => {
+            logContent.textContent += `${new Date(log.timestamp).toLocaleString()} - Unit: ${log.unit}, Role: ${log.role}, UserName: ${log.user}, Action: ${log.action}, ${log.reportId === log.caseId ? 'caseId' : 'ReportID'}: ${log.reportId}\n`;
+            ;
+          });
+        } else {
+          logContent.textContent = 'No logs available.';
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching logs:', error);
+        logContent.textContent = 'Error fetching logs.';
+      });
+  }
+
+
 
 
 
@@ -209,7 +294,7 @@ async function fetchRecords(page) {
             <a class="btn btn-sm btn-outline-primary" href="viewReport?id=${record.reportId}">View</a>
             <a class="btn btn-sm btn-outline-primary" href="editReport?id=${record.reportId}">Edit</a>
             
-            <button id="delete-${record._id}" class="btn btn-sm btn-outline-danger">
+            <button id="delete-${record.reportId}" class="btn btn-sm btn-outline-danger">
               Delete
             </button>
           </div>
@@ -218,11 +303,11 @@ async function fetchRecords(page) {
 
       tableBody.appendChild(row);
 
-      // Add event listener to the delete button
-      document.getElementById(`delete-${record._id}`).addEventListener('click', async function() {
+      // Add event listener to the delete button using reportId
+      document.getElementById(`delete-${record.reportId}`).addEventListener('click', async function() {
         if (confirm('Are you sure you want to delete this record?')) {
           try {
-            const response = await fetch(`/nest/records/${record._id}`, {
+            const response = await fetch(`/nest/records/${record.reportId}?caseId=${caseId}`, {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json'
@@ -231,7 +316,7 @@ async function fetchRecords(page) {
 
             if (response.ok) {
               alert('Record deleted successfully');
-              fetchRecords(currentPage); // Refresh records
+              fetchRecords(page); // Refresh records after deletion
             } else {
               alert('Failed to delete record');
             }
@@ -242,17 +327,20 @@ async function fetchRecords(page) {
         }
       });
     });
-
-    // Update pagination controls
-    document.getElementById('page-info').innerText = `Page ${data.currentPage} of ${data.totalPages}`;
+        // Update pagination controls
+        document.getElementById('page-info').innerText = `Page ${data.currentPage} of ${data.totalPages}`;
     document.getElementById('prev-btn').disabled = data.currentPage === 1;
     document.getElementById('next-btn').disabled = data.currentPage === data.totalPages;
 
     currentPage = data.currentPage;
-  } catch (error) {
-    console.error('Error fetching records:', error);
+
+  } catch (err) {
+    console.error('Error fetching records:', err);
   }
 }
+
+
+
 fetchRecords(currentPage);
 
 

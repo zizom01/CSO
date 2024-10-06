@@ -25,6 +25,9 @@ const reportSchema = new mongoose.Schema({
     description: { type: String},
     User: {type: String },
     unit: { type: String },
+    assigneUnit: {type: String},
+    assigneUser: {type: String},
+    asBranch: {type: String},
     isActive: { type: Boolean},
     follow: {type: Date}
   }, {

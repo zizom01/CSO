@@ -5,6 +5,7 @@ const app = express();
 const { Document, Packer, Paragraph, TextRun } = require('docx');
 const env = require('dotenv').config()
 const Report = require(path.join(__dirname, '/public/pages', 'report_schema.js'));
+const Log = require(path.join(__dirname, '/public/pages', 'log.js'));
 const Report2 = require(path.join(__dirname, '/public/pages', 'nestedForm_schema.js'));
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -100,8 +101,26 @@ app.get('/sessions', (req, res) => {
   })));
 });
 
+async function logActivity(user, action, reportId, caseId) {
+  try {
+    const newLog = new Log({
+      user: user.username,
+      action: action,
+      reportId: reportId,
+      caseId: caseId,
+      unit: user.unit,       // Log the user's unit
+      role: user.role 
+    });
+
+    await newLog.save();
+    console.log('Activity logged successfully');
+  } catch (err) {
+    console.error('Error saving log:', err);
+  }
+}
+
+
 function ensureAuthenticated(req, res, next) {
-  console.log('User:', req.user);
   if (req.isAuthenticated()) {
     return next();
   }
@@ -190,7 +209,7 @@ passport.deserializeUser(async function(id, done) {
     const user = await User.findById(id).exec();
     if (user) {
       // Attach the entire user object to req.user, including username
-      done(null, { id: user.id, username: user.username, unit: user.unit, branch: user.branch });
+      done(null, { id: user.id, username: user.username, unit: user.unit, branch: user.branch, role: user.role });
     } else {
       done(new Error('User not found'), null);
     }
@@ -303,16 +322,41 @@ app.delete('/records/:id', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-app.delete('/nest/records/:id', async (req, res) => {
+app.delete('/nest/records/:reportId', async (req, res) => {
   try {
-    const result = await Report2.findByIdAndDelete(req.params.id);
+    const reportId = req.params.reportId;  // Extract reportId from the URL
+    const caseId = req.query.caseId;
+
+    console.log(caseId);
+    // Find and delete the record by reportId instead of _id
+    const result = await Report2.findOneAndDelete({ reportId: reportId });
+
+    await logActivity(req.user, 'Report Deleted', reportId, caseId);
+
     if (!result) {
       return res.status(404).send('Record not found');
     }
+    
     res.json({ success: true });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
+  }
+});
+
+app.delete('/users/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const result = await User.findByIdAndDelete(userId); // Assuming you're using Mongoose
+
+    if (!result) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
@@ -396,12 +440,29 @@ app.get('/records', async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 10;  // Default to 10 records per page
 
   try {
-    const records = await Report.find({})
-      .sort({ caseId: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    let records;
 
-    const totalRecords = await Report.countDocuments();
+    if (req.user.username !== 'admin') {
+      // Non-admin users only see records from their own unit
+      records = await Report.find({  $or: [
+        { unit: req.user.unit },
+        { assigneUnit: req.user.unit }
+      ] })
+        .sort({ caseId: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
+    } else {
+      // Admin can see all records
+      records = await Report.find({})
+        .sort({ caseId: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
+    }
+
+    // Total number of records should also reflect unit-based filtering
+    const totalRecords = req.user.username !== 'admin' 
+      ? await Report.countDocuments({ unit: req.user.unit }) 
+      : await Report.countDocuments();
 
     // Format the date for each record
     const formattedRecords = records.map(record => ({
@@ -419,6 +480,7 @@ app.get('/records', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
 
 // Debugging sessionTracker
 app.get('/debug-sessions', (req, res) => {
@@ -443,8 +505,12 @@ app.get('/api/records/:id', async (req, res) => {
 
 app.get('/nest/api/records/:id', async (req, res) => {
   try {
+    const reportId = req.params.id;
       const caseId = req.params.id;
+      
       const record = await Report2.findOne({ reportId: parseInt(caseId, 10) });
+      await logActivity(req.user, 'Opened report', reportId, record.caseId);
+
       if (!record) {
           return res.status(404).json({ error: 'Record not found' });
       }
@@ -454,6 +520,19 @@ app.get('/nest/api/records/:id', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch record' });
   }
 });
+app.get('/logs/:caseId', async (req, res) => {
+  try {
+    const caseId = req.params.caseId;
+    // Fetch the most recent 100 logs (or adjust the number as needed)
+    const logs = await Log.find({caseId: caseId}).sort({ timestamp: -1 }).limit(100);
+    res.json({ logs });  // Ensure the response is in JSON format
+      await logActivity(req.user, 'Case Opened', caseId, caseId);
+  } catch (err) {
+    console.error('Error fetching logs:', err);
+    res.status(500).json({ message: 'Error fetching logs' });
+  }
+});
+
 
 
 app.get('/nest/records/:caseId', async (req, res) => {
@@ -512,6 +591,9 @@ app.put('/api/records/:id', upload.array('file'), async (req, res) => {
       record.isActive = req.body.isActive === 'true'; // Convert to boolean
       record.follow = req.body.follow;
       record.port = JSON.parse(req.body.port || '[]');
+      record.assigneUnit = req.body.assigneUnit;
+      record.assigneUser = req.body.assigneUser;
+      record.asBranch = req.body.asBranch;
 
 
       // Handle multiple files
@@ -522,6 +604,13 @@ app.put('/api/records/:id', upload.array('file'), async (req, res) => {
 
       // Save the updated record back to the database
       await record.save();
+
+    
+
+      // Log the activity with data from Report2
+      await logActivity(req.user, 'Case Edited', caseId, caseId);
+
+
       console.log(req.body);
       res.json(record); // Send the updated record back to the client
   } catch (error) {
@@ -535,7 +624,8 @@ app.put('/nest/api/records/:id', upload.array('file'), async (req, res) => {
       const caseId = req.params.id;
       const record = await Report2.findOne({ reportId: parseInt(caseId, 10) });
       console.log(`Searching for report with caseId: ${caseId}`); // Debugging log
-
+      const reportId = req.params.id;
+      await logActivity(req.user, 'Edited report', reportId, record.caseId);
       if (!record) {
           console.log(`No record found for caseId: ${caseId}`); // Additional log if not found
           return res.status(404).json({ error: 'Record not found' });
@@ -611,10 +701,29 @@ app.get('/users', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+app.get('/usersList', async (req, res) => {
+  try {
+      const users = await User.find({ unit: req.user.unit}); // Fetch users and only return the username field
+      res.json(users);
+  } catch (err) {
+      console.error('Error fetching users:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+// API to get current logged-in user data
+app.get('/api/current-user', ensureAuthenticated, (req, res) => {
+  // Send the current user's data to the client
+  res.json({
+    username: req.user.username,
+    unit: req.user.unit,
+    role: req.user.role,
+    branch: req.user.branch
+  });
+});
+
 app.post('/form', async (req, res) => {
   try {
       console.log('Received Form Data:', req.body, req.user);
-      console.log('User:', req.user.unit, req.user.role, req.user.username);
       const formData = req.body;
       const report = new Report({
           caseId: formData.caseId,  // Ensure caseId is a string
@@ -624,6 +733,9 @@ app.post('/form', async (req, res) => {
           follow: formData.follow, 
           User: req.user.username,
           unit: req.user.unit,
+          assigneUnit: formData.assigneUnit,
+          assigneUser: formData.assigneUser,
+          asBranch: formData.asBranch,
         
 
       });
@@ -658,10 +770,11 @@ app.post('/reportsForm/:id', upload.array('file'), async (req, res) => {
   try {
     console.log('Files:', req.files);  // Debugging line to check uploaded files
     console.log('Received Form Data:', req.body);
-    
+
     const caseId = req.params.id; 
     const formData = req.body;
     
+    // Create a new report
     const report = new Report2({
       title: formData.title,
       description: formData.description,
@@ -673,7 +786,7 @@ app.post('/reportsForm/:id', upload.array('file'), async (req, res) => {
       sourceIntel: formData.sourceIntel,
       reportNum: formData.reportNum,
       letterNum: formData.letterNum,
-      User: formData.User,
+      User: req.user.username,   // Use the logged-in user's username
       analysis: formData.analysis,
       destinationIPs: formData.destinationIPs,
       sourceIPs: formData.sourceIPs,
@@ -681,19 +794,23 @@ app.post('/reportsForm/:id', upload.array('file'), async (req, res) => {
       iocs: formData.iocs,
       recommendations: formData.recommendations,
       ttps: formData.ttps,
-      fileType: formData.fileType,
-      User: req.user.username,
+      fileType: formData.fileType
     });
 
-    // Log to check if files are being processed
+    // Process uploaded files and add their paths
     if (req.files && req.files.length > 0) {
       console.log('Files Uploaded:', req.files);
-      const filePaths = req.files.map(file => `/IS/public/uploads/${file.filename}`);
-      report.files = filePaths;
+      const filePaths = req.files.map(file => `${__dirname}/uploads/${file.filename}`);
+      report.files = filePaths;  // Attach file paths to the report
     }
+    
+    // Save the report
+    const savedReport = await report.save();
 
-    await report.save();
+    // Log the activity, using the saved report's _id (MongoDB's default ObjectId)
+    await logActivity(req.user, 'Report Created', savedReport.reportId, savedReport.caseId);
 
+    // Send success response
     res.status(200).sendFile(path.join(__dirname, "public/pages/success.html"));
   } catch (error) {
     console.error('Error saving form data:', error);
@@ -703,7 +820,7 @@ app.post('/reportsForm/:id', upload.array('file'), async (req, res) => {
 
 
 app.get('/Dashboard', ensureAuthenticated, (req, res) => {
-  if (req.user.username == "admin") {
+  if (req.user.role == "Admin") {
   res.sendFile(path.join(__dirname, '/public/pages', 'Dashboard.html'));
   } else {
     res.sendFile(path.join(__dirname, '/public/pages', 'auth.html'));
